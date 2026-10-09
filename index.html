@@ -1,49 +1,212 @@
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function signed() { return request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)); }
-    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
-    function admin() { return signed() && me().role == 'admin'; }
-    function mgr(s) { return signed() && me().role == 'manager' && me().sid == s; }
-    function noSetup() { return !exists(/databases/$(database)/documents/meta/setup); }
-
-    match /meta/setup {
-      allow read: if true;
-      allow create: if request.auth != null && noSetup();
-    }
-    match /users/{uid} {
-      allow read: if request.auth != null && (request.auth.uid == uid || admin());
-      allow create: if admin() || (request.auth != null && request.auth.uid == uid && request.resource.data.role == 'admin' && noSetup());
-      allow update, delete: if admin();
-    }
-    match /schools/{id} {
-      allow read: if admin() || mgr(id);
-      allow create, delete: if admin();
-      allow update: if admin() || (mgr(id) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['n', 'stu', 'cls', 'emp', 'sh']));
-    }
-    match /staff/{id} {
-      allow read: if admin() || mgr(resource.data.s);
-      allow create: if admin() || mgr(request.resource.data.s);
-      allow update: if admin() || (mgr(resource.data.s) && request.resource.data.s == resource.data.s);
-      allow delete: if admin();
-    }
-    match /leaders/{id} {
-      allow read: if admin() || mgr(resource.data.s);
-      allow create: if admin() || mgr(request.resource.data.s);
-      allow update: if admin() || (mgr(resource.data.s) && request.resource.data.s == resource.data.s);
-      allow delete: if admin();
-    }
-    match /facilities/{id} {
-      allow read: if admin() || mgr(resource.data.s);
-      allow create: if admin() || mgr(request.resource.data.s);
-      allow update: if admin() || (mgr(resource.data.s) && request.resource.data.s == resource.data.s);
-      allow delete: if admin();
-    }
-    match /visitors/{id} {
-      allow read: if admin() || mgr(resource.data.s);
-      allow create: if admin() || mgr(request.resource.data.s);
-      allow update: if admin() || (mgr(resource.data.s) && request.resource.data.s == resource.data.s);
-      allow delete: if admin();
-    }
-  }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
+<title>سجل المدارس</title>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F4FA;--cd:#fff;--ink:#14213D;--mut:#5C6584;--ln:#E1E5F1;--s0:#D99A00;--s1:#00897B;--s2:#6D3FC8;--s3:#D9531E;--s4:#2276B5;--s5:#6B8E23;--s6:#D6336C;--ac:#14213D;--on:#fff;--hero:#14213D;box-sizing:border-box}
+@media(prefers-color-scheme:dark){:root{--bg:#0B1020;--cd:#151D36;--ink:#EDF0FA;--mut:#9AA3C0;--ln:#27325A;--s0:#F5B800;--s1:#2BB5A5;--s2:#9B7BFF;--s3:#FF8A5B;--s4:#5BB5F0;--s5:#A8C960;--s6:#FF7DAB;--ac:#F5B800;--on:#14213D;--hero:#18224A}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 Tajawal,Tahoma,"Segoe UI",sans-serif}
+.hero{background:var(--hero);color:#fff;border-radius:0 0 34px 34px;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 24px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 45deg,rgba(255,255,255,.05) 0 25%,transparent 0 50%) 0 0/34px 34px;pointer-events:none}
+.hero::after{content:"";position:absolute;inset-inline:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--s0) 0 33.3%,var(--s1) 0 66.6%,var(--s2) 0)}
+.hi{max-width:520px;margin:0 auto;position:relative}.hrow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+h1{margin:0;font:700 36px/1.1 "Reem Kufi",Tahoma,sans-serif}#sub{margin:4px 0 0;opacity:.8;font-size:13px}
+#hb{display:flex;gap:6px}#hb button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;padding:6px 14px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.stats:empty{display:none}
+.stats div{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:8px 4px;text-align:center}
+.stats b{display:block;font:700 28px/1.2 "Reem Kufi",sans-serif}.stats span{font-size:12px;opacity:.78}
+.w{max-width:520px;margin:0 auto;padding:18px 16px 120px}
+.c{background:var(--cd);border:1px solid var(--ln);border-radius:22px;padding:14px;margin-bottom:12px;box-shadow:0 14px 24px -20px rgba(20,33,61,.45)}
+.sc{position:relative;overflow:hidden}.sc::before{content:"";position:absolute;inset-inline:0;top:0;height:5px;background:var(--rb)}
+.f{display:flex;flex-direction:column;gap:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+input,select,textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--ln);border-radius:14px;padding:11px 13px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--s2);outline-offset:1px}
+label{font-size:12px;color:var(--mut);display:block;margin:0 0 3px}
+button{font:500 14px Tajawal,Tahoma,sans-serif;border-radius:999px;border:1px solid var(--ln);background:var(--cd);color:var(--ink);padding:8px 16px;cursor:pointer;transition:transform .12s}
+button:active{transform:scale(.96)}button.p{background:var(--ac);color:var(--on);border-color:var(--ac)}.blk{width:100%;margin-bottom:12px;padding:12px}.c .blk{margin-bottom:0}
+.ch{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.ch button{padding:5px 13px;font-size:13px}.ch .on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.r{display:flex;gap:12px;align-items:center}.fl{flex:1;min-width:0}.pt{cursor:pointer}.ac{display:flex;gap:6px;margin-top:10px}.ac button{padding:5px 14px;font-size:13px}
+.sb{width:58px;height:58px;border-radius:18px;border:2px solid;display:grid;place-items:center;font:700 32px "Reem Kufi",sans-serif;flex:none;transform:rotate(-4deg)}
+.br{display:flex;gap:10px;justify-content:center;margin:10px 0 18px}.br .sb{width:70px;height:70px;font-size:38px;animation:fl 3s ease-in-out infinite}.br .sb:nth-child(2){animation-delay:.4s}.br .sb:nth-child(3){animation-delay:.8s}
+@keyframes fl{50%{transform:translateY(-8px) rotate(3deg)}}
+.nm{margin:0 0 4px;font-weight:500;font-size:16px}.mu{margin:0;color:var(--mut);font-size:13px}
+.t{display:inline-block;font-size:12px;padding:1px 10px;border-radius:999px;margin-inline-end:6px;border:1px solid transparent}
+.ty0{border-color:var(--mut)}.ty1{background:var(--ink);color:var(--bg)}.ty2{border:1px dashed var(--mut)}
+.k{background:var(--bg);border-radius:14px;padding:6px 0;text-align:center}.k b{display:block;font:700 20px "Reem Kufi",sans-serif}.k span{font-size:12px;color:var(--mut)}
+.av{width:42px;height:42px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:500}
+.dt{background:var(--bg);border-radius:14px;padding:8px 12px;margin-top:10px;font-size:13px}.dt>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.dt span:first-child{color:var(--mut)}
+.em{text-align:center;padding:26px 16px}.em b{font:700 19px "Reem Kufi",sans-serif}.em p{color:var(--mut);margin:6px 0 0}
+.tri{display:flex;gap:8px;justify-content:center;margin-bottom:12px}.tri i{font:700 22px "Reem Kufi",sans-serif;font-style:normal;width:44px;height:44px;border-radius:14px;border:2px solid var(--k);color:var(--k);display:grid;place-items:center;background:color-mix(in srgb,var(--k) 14%,var(--cd))}
+.tri i:nth-child(odd){transform:rotate(-6deg)}.tri i:nth-child(even){transform:rotate(5deg) translateY(-5px)}
+.in{color:var(--s1)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--s1);margin-inline-end:6px;animation:pl 1.6s infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s1) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+.dn{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;flex:none}.dn>div{width:78px;height:78px;border-radius:50%;background:var(--cd);display:grid;place-items:center;font:700 26px "Reem Kufi",sans-serif}
+.lg{margin:0 0 6px;display:flex;align-items:center;gap:8px}.lg i{width:12px;height:12px;border-radius:4px}.lg b{margin-inline-start:auto;font-family:"Reem Kufi",sans-serif}
+.bars{display:flex;align-items:flex-end;gap:8px;height:110px;margin-top:10px}.bars div{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
+.bars i{width:100%;border-radius:9px 9px 4px 4px;background:var(--s1);min-height:4px}.bars em{font-style:normal;font-size:11px}.bars span{font-size:11px;color:var(--mut)}
+#app.an>*{animation:rise .45s cubic-bezier(.2,.7,.2,1) both}#app.an>:nth-child(2){animation-delay:.05s}#app.an>:nth-child(3){animation-delay:.1s}#app.an>:nth-child(4){animation-delay:.15s}#app.an>:nth-child(5){animation-delay:.2s}#app.an>:nth-child(n+6){animation-delay:.25s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.cf{position:fixed;width:9px;height:14px;border-radius:2px;z-index:20;pointer-events:none}
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:2px;background:color-mix(in srgb,var(--cd) 84%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--ln);border-radius:999px;padding:5px;z-index:9;box-shadow:0 12px 30px -8px rgba(20,33,61,.4)}
+.dock button{background:none;border:none;color:var(--mut);padding:10px 11px;display:flex;align-items:center;gap:6px;font-size:13px}.dock button span{display:none}.dock .on{background:var(--ac);color:var(--on)}.dock .on span{display:inline}
+.ts{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-90px);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:13px;transition:transform .2s;z-index:30;max-width:90%}.ts.sh{transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hi"><div class="hrow"><div><h1 id="ttl">سجل المدارس</h1><p id="sub"></p></div><div id="hb"></div></div><div class="stats" id="st"></div></div></header><div class="w"><main id="app"></main></div>
+<nav class="dock" id="dock" hidden></nav><div class="ts" id="ts" role="status"></div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,collection,doc,addDoc,setDoc,updateDoc,deleteDoc,getDoc,onSnapshot,query,where}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+/* الصق بيانات مشروع Firebase هنا */
+const CFG={apiKey:"AIzaSyBRPVGcxrBa5D7uKH5S8TV_-ZnboDrGw_E",authDomain:"school-register-35692.firebaseapp.com",projectId:"school-register-35692",storageBucket:"school-register-35692.firebasestorage.app",messagingSenderId:"315266493259",appId:"1:315266493259:web:c3957e714bf8e7937616ce"};
+const ST=['ابتدائي','إعدادي','ثانوي عام','تعليم أساسي','ثانوي فني','تعليم مجتمعي','رياض أطفال'],ORD=[6,0,1,3,2,4,5],TY=['رسمي','لغات','خاص'],LT=['ا','ع','ث','س','ف','م','ر'],SH=['صباحي','مسائي','صباحي ومسائي'],JB=['معلم','إداري','عامل','أخصائي'],FT=['فصول','معامل','مكتبة','ملاعب','دورات مياه','أخرى'],ET=['أصلي','منتدب'],LC=['داخلي','لجنة قيادات'],LR=['مدير','وكيل'];
+const TT=['المدارس','العاملين','القيادات','بيانات المدرسة','الزوار','التقارير','الإعدادات'],NM=['المدارس','العاملين','القيادات','المرافق','الزوار','التقارير'];
+const S={schools:[],staff:[],ld:[],fac:[],vis:[],mgrs:[]},CN={schools:'schools',staff:'staff',ld:'leaders',fac:'facilities',vis:'visitors',mgrs:'users'};
+const FM={schools:{a1:'n',a2:'st',a3:'ty',a4:'stu',a5:'cls',a6:'emp',a7:'sh'},staff:{b1:'n',b2:'nid',b3:'bd',b4:'gn',b5:'ms',b6:'ph',b7:'ad',b8:'j',b9:'s',b10:'et',b11:'dy',t1:'sj',t2:'pc',t3:'xp',b12:'lw',c1:'hd',c2:'dg',c7:'gt',c3:'ins',c4:'q',c5:'mj',c6:'nt'},ld:{l1:'n',l2:'rl',l3:'s',l4:'nid',l5:'ph',l6:'ty',l7:'dt'}};
+const SF=[['n','الاسم'],['nid','الرقم القومي'],['j','الوظيفة'],['s','المدرسة'],['ph','الهاتف'],['ad','العنوان'],['bd','تاريخ الميلاد'],['gn','النوع'],['ms','الحالة الاجتماعية'],['et','نوع العمل'],['dy','عدد الأيام'],['sj','مادة التدريس'],['pc','عدد الحصص'],['xp','الحصص الزائدة'],['lw','القانون'],['dg','الدرجة الوظيفية'],['gt','تاريخ الدرجة'],['ins','التأمينات'],['hd','تاريخ التعيين'],['q','آخر مؤهل'],['mj','التخصص'],['nt','ملاحظات']];
+let app,auth,db,me=null,ready=0,setupDone=null,busy=0,nc=null,ed=null,tab=0,form=false,fS=-1,fSc='',op='',cf='',q='',pend=0,un=[],hrv=0,rp=0;
+const $=id=>document.getElementById(id),v=id=>$(id).value.trim(),adm=()=>me&&me.role==='admin';
+const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const day=()=>new Date().toLocaleDateString('en-CA'),tm=t=>new Date(t).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+const sch=id=>S.schools.find(s=>s.id===id)||{n:'—',st:0,ty:0},em=u=>u.toLowerCase().replace(/[^a-z0-9._-]/g,'')+'@sch.app';
+const F=(id,l,p='')=>`<div><label>${l}</label><input id="${id}" placeholder="${p}"></div>`;
+const SL=(id,l,o,c='')=>`<div><label>${l}</label><select id="${id}"${c?` onchange="${c}"`:''}>${o.map(([a,b])=>`<option value="${E(a)}">${E(b)}</option>`).join('')}</select></div>`;
+const FL=(id,l,p,li)=>`<div><label>${l}</label><input id="${id}" placeholder="${p}" list="${li}"></div>`,AS=()=>ORD.map(i=>[i,ST[i]]);
+const AR=a=>a.map((x,i)=>[i,x]),A2=a=>a.map(x=>[x,x]),SO=()=>S.schools.map(s=>[s.id,s.n]),G=(a,b)=>`<div class="g2">${a}${b}</div>`;
+const B=(t,fn,p)=>`<button class="${p?'p ':''}blk" onclick="${fn}">${t}</button>`,EM=(t,d)=>`<div class="c em"><div class="tri"><i style="--k:var(--s0)">ا</i><i style="--k:var(--s1)">ع</i><i style="--k:var(--s2)">ث</i></div><b>${t}</b><p>${d}</p></div>`;
+const bt=s=>`<span class="t" style="background:color-mix(in srgb,var(--s${s.st}) 22%,var(--cd))">${ST[s.st]}</span><span class="t ty${s.ty}">${TY[s.ty]}</span><span class="t" style="background:var(--bg)">${SH[s.sh||0]}</span>`;
+const blk=s=>`<div class="sb" style="border-color:var(--s${s.st});background:color-mix(in srgb,var(--s${s.st}) 16%,var(--cd));color:var(--s${s.st})">${LT[s.st]}</div>`;
+function say(m){const t=$('ts');t.textContent=m;t.classList.add('sh');clearTimeout(window._t);window._t=setTimeout(()=>t.classList.remove('sh'),3200)}
+function err(e){const c=e.code||'';if(/credential|password|user-not-found/.test(c)&&!/weak/.test(c))return'اسم المستخدم أو الرقم السري غير صحيح';if(/weak/.test(c))return'الرقم السري لازم يكون 6 أرقام على الأقل';if(/permission/.test(c))return'مفيش صلاحية للعملية دي';if(/already/.test(c))return'الاسم مستخدم، جرب تاني';if(/network/.test(c))return'مفيش اتصال بالإنترنت';return'حصل خطأ: '+c}
+async function add(c,o){try{await addDoc(collection(db,CN[c]),o);return 1}catch(e){say(err(e));return 0}}
+async function upd(c,id,o){try{await updateDoc(doc(db,CN[c],id),o);return 1}catch(e){say(err(e));return 0}}
+function dl(c,id){if(cf!==id){cf=id;render();return}cf='';deleteDoc(doc(db,CN[c],id)).catch(e=>say(err(e)))}
+function nav(i){tab=i;form=false;ed=null;op='';cf='';anim();render()}
+function tg(){form=!form;ed=null;render()}
+function setFS(i){fS=i;render()}function setFSc(x){fSc=x;render()}function setOp(x){op=x;cf='';render()}function setQ(x){q=x;LS()}function dm(){nc=null;render()}
+function edit(c,id){ed={c,id};form=true;tab={staff:1,ld:2}[c]??tab;render();const o=S[c].find(x=>x.id===id);Object.entries(FM[c]).forEach(([k,f])=>{if($(k))$(k).value=o[f]??({sh:0,et:'أصلي'}[f]??'')});if(c==='staff'){tj();te()}scrollTo(0,0)}
+function out(){signOut(auth)}
+let lx=innerWidth/2,ly=innerHeight/2;const prev={};
+addEventListener('pointerdown',e=>{lx=e.clientX;ly=e.clientY});
+const IC=['<path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6"/>','<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5a3 3 0 010 6M18 14c2 .6 3 2.6 3 6"/>','<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l2 2 3.5-4"/>','<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>','<path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5M10 8l-4 4 4 4M6 12h10"/>','<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'];
+const ic=i=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[i]}</svg>`;
+const greet=()=>{const h=new Date().getHours();return h>=5&&h<12?'صباح الخير':'مساء الخير'};
+function anim(){const a=$('app');a.classList.add('an');clearTimeout(window._a);window._a=setTimeout(()=>a.classList.remove('an'),900)}
+function cu(){document.querySelectorAll('[data-n]').forEach(el=>{const to=+el.dataset.n,k=el.dataset.k,from=prev[k]||0;prev[k]=to;if(from===to)return;const t0=performance.now();const f=t=>{const p=Math.min(1,(t-t0)/600);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)};f(t0)})}
+function pop(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;const cs=['var(--s0)','var(--s1)','var(--s2)'];for(let i=0;i<18;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${lx}px;top:${ly}px;background:${cs[i%3]}`;document.body.appendChild(e);const g=Math.random()*6.28,r=60+Math.random()*90;e.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(g)*r}px,${Math.sin(g)*r+40}px) rotate(${Math.random()*360}deg) scale(.4)`,opacity:0}],{duration:800+Math.random()*400,easing:'cubic-bezier(.2,.8,.3,1)'}).onfinish=()=>e.remove()}}
+function render(){
+ const a=$('app'),d=$('dock'),st=$('st');d.hidden=true;st.innerHTML='';
+ if(CFG.apiKey.startsWith('PASTE')){a.innerHTML=EM('الإعداد ناقص','افتح ملف SETUP.md واتبع الخطوات، وبعدين الصق بيانات Firebase داخل index.html.');return}
+ if(!ready){a.innerHTML='<p class="mu">جاري التحميل…</p>';return}
+ if(!me){$('ttl').textContent='سجل المدارس';$('sub').textContent=setupDone===false?'أول تشغيل: أنشئ حساب المدير':'أهلاً بيك، سجّل دخولك';$('hb').innerHTML='';
+  const br=`<div class="br">${[0,1,2].map(i=>blk({st:i})).join('')}</div>`;
+  a.innerHTML=br+(setupDone===false?`<div class="c f"><b class="nm">إنشاء حساب المدير</b><p class="mu">الحساب ده بيتحكم في كل حاجة. اكتب اسم مستخدم بالإنجليزي، ورقم سري 6 أرقام أو أكتر.</p>${F('lu','اسم المستخدم','admin')}<div><label>الرقم السري</label><input id="lp" type="password" inputmode="numeric"></div>${B('إنشاء حساب المدير','setup()',1)}</div>`:`<div class="c f"><b class="nm">أهلاً بيك</b>${F('lu','اسم المستخدم','m1234')}<div><label>الرقم السري</label><input id="lp" type="password" inputmode="numeric" style="text-align:center;font-size:20px;letter-spacing:6px"></div>${B('دخول','login()',1)}</div>`);return}
+ d.hidden=false;$('ttl').textContent=TT[tab];
+ $('sub').textContent=greet()+' · '+(adm()?'المدير':me.n+' · '+sch(me.sid).n)+' · '+new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+ $('hb').innerHTML=(adm()?'<button onclick="nav(6)">الإعدادات</button>':'')+'<button onclick="out()">خروج</button>';
+ st.innerHTML=[['مدارس',S.schools.length],['عاملين',S.staff.filter(x=>!x.hr).length],['زوار اليوم',S.vis.filter(x=>x.d===day()).length]].map(([l,n],i)=>`<div><b data-n="${n}" data-k="${i}">${n}</b><span>${l}</span></div>`).join('');
+ d.innerHTML=NM.map((n,i)=>`<button class="${i===tab?'on':''}" onclick="nav(${i})" aria-label="${n}">${ic(i)}<span>${n}</span></button>`).join('');
+ a.innerHTML=[V0,V1,VL,V2,V3,V4,V5][tab]();if(tab===1&&!form)LS();if(tab===1&&form){tj();te()}cu();
 }
+function V0(){
+ let h=adm()?B(form&&!ed?'إغلاق النموذج':'تسجيل مدرسة','tg()',!form):'';
+ if(form)h+=`<div class="c f"><b>${ed?'تعديل بيانات المدرسة':'مدرسة جديدة'}</b>${F('a1','اسم المدرسة')}${adm()?G(SL('a2','المرحلة',AS()),SL('a3','النوع',AR(TY))):''}${SL('a7','الفترة',AR(SH))}${G(F('a4','عدد الطلاب','500'),F('a5','عدد الفصول','20'))}${F('a6','عدد العاملين','40')}${B('حفظ','addS()',1)}${ed?B('إلغاء','tg()'):''}</div>`;
+ if(adm())h+=`<div class="ch">${[[-1,'الكل'],...AS()].map(([k,t])=>`<button class="${k===fS?'on':''}" onclick="setFS(${k})">${t}</button>`).join('')}</div>`;
+ const L=S.schools.filter(s=>fS<0||s.st===fS);
+ if(!L.length)return h+EM('ابدأ بتسجيل المدارس',adm()?'سجّل مدرسة، أو الصق قائمة كاملة من الإعدادات.':'مدرستك لسه متسجلتش. كلم المدير.');
+ return h+L.map(s=>`<div class="c sc" style="--rb:var(--s${s.st})"><div class="r">${blk(s)}<div class="fl"><p class="nm">${E(s.n)}</p><div>${bt(s)}</div></div></div><div class="g4">${[['عاملين',s.emp||0],['مسجلين',S.staff.filter(x=>x.s===s.id&&!x.hr).length],['فصول',s.cls||0],['طلاب',s.stu||0]].map(([a,b])=>`<div class="k"><b>${b}</b><span>${a}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('schools','${s.id}')">تعديل</button>${adm()?`<button onclick="dl('schools','${s.id}')">${cf===s.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join('');
+}
+async function addS(){const n=v('a1');if(!n)return say('اكتب اسم المدرسة');const o={n,stu:+v('a4')||0,cls:+v('a5')||0,emp:+v('a6')||0,sh:+v('a7')};if(adm()){o.st=+v('a2');o.ty=+v('a3')}
+ if(await(ed?upd('schools',ed.id,o):add('schools',o))){form=false;ed=null;pop()}render()}
+function V1(){
+ if(form){if(!S.schools.length)return B('رجوع','tg()')+EM('سجّل مدرسة الأول','لازم يكون فيه مدرسة قبل إضافة العاملين.');
+  return B('رجوع للقائمة','tg()')+`<div class="c f"><b>${ed?'تعديل البيانات':hrv?'بيانات عامل بالحصة':'البيانات الشخصية'}</b>${F('b1','الاسم الكامل')}${G(F('b2','الرقم القومي','14 رقم'),F('b3','تاريخ الميلاد','1990/01/01'))}${G(SL('b4','النوع',A2(['ذكر','أنثى'])),SL('b5','الحالة الاجتماعية',A2(['أعزب','متزوج','أخرى'])))}${G(F('b6','التليفون','01012345678'),F('b7','العنوان'))}<b>البيانات الوظيفية</b>${G(SL('b8','الوظيفة',A2(JB),'tj()'),SL('b9','المدرسة',SO()))}<div id="tf" class="f">${FL('t1','مادة التدريس','عربي، رياضيات...','sbj')}${G(F('t2','عدد الحصص','20'),F('t3','الحصص الزائدة','0'))}</div>${G(SL('b10','نوع العمل',A2(ET),'te()'),`<div id="dyw">${F('b11','عدد الأيام','3')}</div>`)}${F('b12','القانون التابع له')}${G(F('c1','تاريخ التعيين','2020/09/01'),F('c2','الدرجة الوظيفية'))}${G(F('c7','تاريخ الدرجة الوظيفية','2020/09/01'),F('c3','رقم التأمينات'))}<b>المؤهل</b>${G(F('c4','آخر مؤهل','بكالوريوس'),F('c5','التخصص'))}${F('c6','دورات وملاحظات')}<datalist id="sbj">${['اللغة العربية','اللغة الإنجليزية','اللغة الفرنسية','الرياضيات','العلوم','الدراسات الاجتماعية','التربية الدينية','الحاسب الآلي','التربية الفنية','التربية الرياضية','التربية الموسيقية'].map(x=>`<option value="${x}">`).join('')}</datalist>${B('حفظ البيانات','addF()',1)}</div>`}
+ return `<div class="ch"><button class="${hrv?'':'on'}" onclick="setHr(0)">العاملين (${S.staff.filter(x=>!x.hr).length})</button><button class="${hrv?'on':''}" onclick="setHr(1)">بالحصة (${S.staff.filter(x=>x.hr).length})</button></div>`+B(hrv?'إضافة عامل بالحصة':'إضافة موظف','tg()',1)+`<input placeholder="ابحث بالاسم" value="${E(q)}" oninput="setQ(this.value)" style="margin-bottom:12px"><div id="sl"></div>`;
+}
+function tj(){const t=$('b8');if($('tf'))$('tf').style.display=t&&t.value==='معلم'?'':'none'}
+function te(){const t=$('b10');if($('dyw'))$('dyw').style.display=t&&t.value==='منتدب'?'':'none'}
+function setHr(x){hrv=x;op='';render()}
+function LS(){const el=$('sl');if(!el)return;const L=S.staff.filter(x=>!!x.hr===!!hrv&&(!q||String(x.n).includes(q)));
+ el.innerHTML=L.length?L.map(x=>{const o=op===x.id,t=x.j==='معلم',R=[['الرقم القومي',x.nid],['التليفون',x.ph],['العنوان',x.ad],['تاريخ الميلاد',x.bd],['النوع',x.gn],['الحالة الاجتماعية',x.ms],['نوع العمل',x.et||'أصلي'],...(x.et==='منتدب'?[['عدد الأيام',x.dy]]:[]),...(t?[['مادة التدريس',x.sj],['عدد الحصص',x.pc],['الحصص الزائدة',x.xp]]:[]),['القانون التابع له',x.lw],['تاريخ التعيين',x.hd],['الدرجة الوظيفية',x.dg],['تاريخ الدرجة',x.gt],['التأمينات',x.ins],['آخر مؤهل',x.q],['التخصص',x.mj],['ملاحظات',x.nt]];return `<div class="c"><div class="r pt" onclick="setOp('${o?'':x.id}')"><div class="av">${E(String(x.n)[0])}</div><div class="fl"><p class="nm">${E(x.n)}</p><p class="mu">${E(x.j)}${t&&x.sj?' - '+E(x.sj):''}${x.et==='منتدب'?' · منتدب':''} · ${E(sch(x.s).n)}</p></div></div>${o?`<div class="dt">${R.map(([a,b])=>`<div><span>${a}</span><span>${E(b||'—')}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('staff','${x.id}')">تعديل</button>${adm()?`<button onclick="dl('staff','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div>`:''}</div>`}).join(''):EM(hrv?'لسه مفيش عاملين بالحصة':'لسه مفيش عاملين','سجّل أول واحد من زر الإضافة.')}
+async function addF(){const n=v('b1');if(!n)return say('اكتب الاسم');const o={};Object.entries(FM.staff).forEach(([k,f])=>{o[f]=v(k)});
+ if(o.j!=='معلم'){o.sj='';o.pc='';o.xp=''}if(o.et!=='منتدب')o.dy='';if(!ed)o.hr=hrv?1:0;
+ if(await(ed?upd('staff',ed.id,o):add('staff',o))){form=false;ed=null;pop()}render()}
+function VL(){
+ if(form){if(!S.schools.length)return B('رجوع','tg()')+EM('سجّل مدرسة الأول','لازم يكون فيه مدرسة قبل تسجيل القيادات.');
+  return B('رجوع للقائمة','tg()')+`<div class="c f"><b>${ed?'تعديل البيانات':'بيانات مدير / وكيل'}</b>${F('l1','الاسم')}${G(SL('l2','المنصب',A2(LR)),SL('l3','المدرسة',SO()))}${F('l4','الرقم القومي','14 رقم')}${F('l5','رقم الهاتف المحمول','01012345678')}${G(SL('l6','نوع التكليف',A2(LC)),F('l7','تاريخ التكليف','2024/09/01'))}${B('حفظ','addL()',1)}</div>`}
+ const L=S.ld.slice().sort((a,b)=>sch(a.s).n.localeCompare(sch(b.s).n,'ar')||(a.rl==='مدير'?-1:1)-(b.rl==='مدير'?-1:1));
+ return B('إضافة مدير / وكيل','tg()',1)+(L.length?L.map(x=>`<div class="c sc" style="--rb:var(--s${sch(x.s).st})"><div class="r"><div class="av">${E(String(x.n)[0])}</div><div class="fl"><p class="nm">${E(x.n)}</p><p class="mu">${E(x.rl)} · ${E(sch(x.s).n)}</p></div><span class="t ${x.rl==='مدير'?'ty1':'ty0'}">${E(x.ty)}</span></div><div class="dt">${[['الرقم القومي',x.nid],['الهاتف',x.ph],['نوع التكليف',x.ty],['تاريخ التكليف',x.dt]].map(([a,b])=>`<div><span>${a}</span><span>${E(b||'—')}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('ld','${x.id}')">تعديل</button>${adm()?`<button onclick="dl('ld','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join(''):EM('لسه مفيش مديرين أو وكلاء','سجّل مدير أو وكيل لكل مدرسة.'));
+}
+async function addL(){const n=v('l1');if(!n)return say('اكتب الاسم');const o={};Object.entries(FM.ld).forEach(([k,f])=>{o[f]=v(k)});
+ if(await(ed?upd('ld',ed.id,o):add('ld',o))){form=false;ed=null;pop()}render()}
+function V2(){
+ if(!S.schools.length)return EM('سجّل مدرسة الأول','بيانات الفصول والمرافق بتتسجل لكل مدرسة.');
+ if(!S.schools.some(s=>s.id===fSc))fSc=S.schools[0].id;const L=S.fac.filter(x=>x.s===fSc);
+ return (adm()?`<label>المدرسة</label><select onchange="setFSc(this.value)" style="margin-bottom:12px">${S.schools.map(s=>`<option value="${E(s.id)}"${s.id===fSc?' selected':''}>${E(s.n)}</option>`).join('')}</select>`:'')+`<div class="c f">${G(SL('d1','نوع البيان',A2(FT)),F('d2','العدد','1'))}${F('d3','ملاحظات','اختياري')}${B('إضافة بيان','addFa()',1)}</div>`+(L.length?L.map(x=>`<div class="c r"><div class="fl"><p class="nm">${E(x.t)}</p><p class="mu">${E(x.nt||'بدون ملاحظات')}</p></div><b style="font:700 24px 'Reem Kufi'">${E(x.c)}</b>${adm()?`<button onclick="dl('fac','${x.id}')">${cf===x.id?'تأكيد؟':'حذف'}</button>`:''}</div>`).join(''):EM('لسه مفيش بيانات للمدرسة دي','سجّل الفصول والمعامل والملاعب وأي مرفق.'));
+}
+async function addFa(){const c=parseInt(v('d2'));if(!c)return say('اكتب العدد');if(await add('fac',{s:fSc,t:v('d1'),c,nt:v('d3')}))pop();render()}
+function V3(){
+ const L=S.vis.filter(x=>x.d===day()).sort((a,b)=>b.i-a.i),n=L.filter(x=>!x.o).length;
+ let h=`<div class="g2" style="margin-bottom:12px">${[['زوار اليوم',L.length],['لسه جوه المدرسة',n]].map(([a,b])=>`<div class="k c" style="margin:0"><b>${b}</b><span>${a}</span></div>`).join('')}</div>`+B(form?'إغلاق النموذج':'تسجيل زائر','tg()',!form);
+ if(form)h+=S.schools.length?`<div class="c f">${F('e1','اسم الزائر')}${F('e2','وظيفة الزائر','مفتش، ولي أمر، مورد')}${F('e4','الغرض من الزيارة')}${SL('e5','المدرسة',SO())}<p class="mu">وقت الدخول بيتسجل تلقائي.</p>${B('تسجيل دخول','addV()',1)}</div>`:EM('سجّل مدرسة الأول','الزيارة بتتسجل على مدرسة.');
+ return h+(L.length?L.map(x=>`<div class="c"><div class="r"><p class="nm fl">${E(x.n)}</p><span class="mu ${x.o?'':'in'}">${x.o?'خرج '+tm(x.o):'<i class="dot"></i>جوه المدرسة'}</span></div><p class="mu">${E(x.j)} · ${E(x.why)}</p><p class="mu">${E(sch(x.s).n)} · دخل ${tm(x.i)}</p><div class="ac">${x.o?'':`<button onclick="outV('${x.id}')">تسجيل خروج</button>`}${adm()?`<button onclick="dl('vis','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join(''):EM('مفيش زوار النهارده','سجّل أول زيارة من الزر فوق.'));
+}
+async function addV(){const n=v('e1');if(!n)return say('اكتب اسم الزائر');if(await add('vis',{n,j:v('e2')||'—',why:v('e4')||'—',s:v('e5'),i:Date.now(),o:0,d:day()})){form=false;pop()}render()}
+async function outV(id){await upd('vis',id,{o:Date.now()})}
+const STH=SF.map(f=>f[1]),SR=x=>SF.map(([f])=>f==='s'?sch(x.s).n:x[f]);
+function rg(){const d=day();return rp==0?d:rp==1?new Date(Date.now()-6*864e5).toLocaleDateString('en-CA'):d.slice(0,8)+'01'}
+function VR(){const a=rg(),b=day();return S.vis.filter(x=>x.d>=a&&x.d<=b).sort((a,b)=>b.i-a.i)}
+function setRp(i){rp=i;render()}
+function V4(){
+ const L=VR(),n=ST.map((_,i)=>S.schools.filter(s=>s.st===i).length),T=S.schools.length;
+ let acc=0;const seg=ORD.filter(i=>n[i]).map(i=>{const a=acc;acc+=n[i]/T*100;return `var(--s${i}) ${a}% ${acc}%`}).join(',');
+ let bars=[];
+ if(rp==1)bars=[...Array(7)].map((_,i)=>{const t=new Date(Date.now()-(6-i)*864e5);return[t.toLocaleDateString('ar-EG',{weekday:'short'}),S.vis.filter(x=>x.d===t.toLocaleDateString('en-CA')).length]});
+ if(rp==2){const w=[0,0,0,0,0];L.forEach(x=>w[Math.min(4,Math.floor((+x.d.slice(8)-1)/7))]++);bars=w.map((c,i)=>[['الأول','الثاني','الثالث','الرابع','الخامس'][i],c])}
+ const M=Math.max(1,...bars.map(b=>b[1])),per=S.schools.map(s=>[s,L.filter(x=>x.s===s.id).length]).filter(r=>r[1]).sort((a,b)=>b[1]-a[1]),P=['اليوم','آخر 7 أيام','الشهر'][rp];
+ return `<div class="ch">${['يومي','أسبوعي','شهري'].map((t,i)=>`<button class="${i==rp?'on':''}" onclick="setRp(${i})">${t}</button>`).join('')}</div><div class="g3" style="margin:0 0 12px">${[['زوار '+P,L.length],['لسه جوه',L.filter(x=>!x.o).length],['مدارس مزارة',new Set(L.map(x=>x.s)).size]].map(([a,b])=>`<div class="k c" style="margin:0"><b>${b}</b><span>${a}</span></div>`).join('')}</div>`
+ +(bars.length?`<div class="c"><p class="nm">${rp==1?'الزوار يوميًا':'الزوار أسبوعيًا (أسابيع الشهر)'}</p><div class="bars">${bars.map(([l,c],i)=>`<div><em>${c}</em><i style="height:${Math.max(4,c/M*70)}px;${rp==1&&i==6?'background:var(--s0)':''}"></i><span>${l}</span></div>`).join('')}</div></div>`:'')
+ +(per.length?`<div class="c"><p class="nm">الزوار حسب المدرسة</p>${per.map(([s,c])=>`<p class="lg"><i style="background:var(--s${s.st})"></i>${E(s.n)}<b>${c}</b></p>`).join('')}</div>`:'')
+ +`<div class="c"><p class="nm">سجل الزوار (${P})</p>${L.length?L.slice(0,40).map(x=>`<div style="padding:8px 0;border-top:1px solid var(--ln)"><p class="nm" style="font-size:14px;margin:0">${E(x.n)} <span class="mu">· ${E(x.j)}</span></p><p class="mu">${E(x.why)} · ${E(sch(x.s).n)} · ${x.d} ${tm(x.i)}${x.o?' ← '+tm(x.o):''}</p></div>`).join('')+(L.length>40?`<p class="mu">+${L.length-40} آخرين في ملف التصدير</p>`:''):'<p class="mu">مفيش زوار في الفترة دي.</p>'}<div style="margin-top:10px"><button class="p blk" onclick="ex('vis')">تصدير تقرير الزوار (${P})</button></div></div>`
+ +`<div class="c r"><div class="dn" style="background:${T?`conic-gradient(${seg})`:'var(--ln)'}"><div>${T}</div></div><div class="fl"><p class="nm">المدارس حسب المرحلة</p>${ORD.filter(i=>n[i]).map(i=>`<p class="lg"><i style="background:var(--s${i})"></i>${ST[i]}<b>${n[i]}</b></p>`).join('')||'<p class="mu">لا توجد مدارس</p>'}</div></div>`
+ +`<div class="c"><p class="nm">تصدير البيانات (يفتح في Excel)</p><div class="g2">${[['schools','المدارس'],['staff','العاملين'],['hourly','العاملين بالحصة'],['ld','المديرين والوكلاء'],['fac','المرافق']].map(([k,t])=>`<button onclick="ex('${k}')">${t}</button>`).join('')}</div></div>`;
+}
+function ex(k){
+ const T={schools:[['الاسم','المرحلة','النوع','الفترة','عدد العاملين','العاملين المسجلين','عدد الفصول','عدد الطلاب'],S.schools.map(s=>[s.n,ST[s.st],TY[s.ty],SH[s.sh||0],s.emp||0,S.staff.filter(x=>x.s===s.id&&!x.hr).length,s.cls||0,s.stu||0])],
+  staff:[STH,S.staff.filter(x=>!x.hr).map(SR)],hourly:[STH,S.staff.filter(x=>x.hr).map(SR)],
+  ld:[['الاسم','المنصب','المدرسة','الرقم القومي','الهاتف','نوع التكليف','تاريخ التكليف'],S.ld.map(x=>[x.n,x.rl,sch(x.s).n,x.nid,x.ph,x.ty,x.dt])],
+  fac:[['المدرسة','البيان','العدد','ملاحظات'],S.fac.map(x=>[sch(x.s).n,x.t,x.c,x.nt])],
+  vis:[['الزائر','وظيفة الزائر','الغرض','المدرسة','اليوم','دخول','خروج'],VR().map(x=>[x.n,x.j,x.why,sch(x.s).n,x.d,tm(x.i),x.o?tm(x.o):''])]}[k];
+ const csv='\ufeff'+[T[0],...T[1]].map(r=>r.map(c=>'"'+String(c??'').replace(/^[=+\-@]/,"'$&").replace(/"/g,'""')+'"').join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=(k==='vis'?['visitors-daily','visitors-weekly','visitors-monthly'][rp]:k)+'-'+day()+'.csv';a.click()}
+function V5(){
+ if(!adm())return '';
+ return (nc?`<div class="c f" style="border-color:var(--s1)"><b>بيانات دخول ${E(nc.n)}</b><p class="mu">${E(nc.sc)}</p><p class="nm" dir="ltr" style="letter-spacing:2px">${E(nc.un)} / ${E(nc.pin)}</p><p class="mu">اكتبها دلوقتي، الرقم السري مش هيظهر تاني.</p><button onclick="dm()">تم</button></div>`:'')+`<p class="nm">قائمة أسماء المدارس</p><div class="c f"><div><label>اكتب أو الصق اسم كل مدرسة في سطر</label><textarea id="g1" rows="5"></textarea></div>${G(SL('g2','المرحلة',AS()),SL('g3','النوع',AR(TY)))}${B('إضافة المدارس للقائمة','addList()',1)}<p class="mu">المدارس المسجلة: ${S.schools.length}</p></div><p class="nm">مسؤولو المدارس</p>`+S.mgrs.map(m=>`<div class="c r"><div class="fl"><p class="nm">${E(m.n)}</p><p class="mu">${E(sch(m.sid).n)} · <span dir="ltr">${E(m.un)}</span></p></div><button onclick="dl('mgrs','${m.id}')">${cf===m.id?'تأكيد الإلغاء؟':'إلغاء الصلاحية'}</button></div>`).join('')+(S.schools.length?`<div class="c f">${F('g4','اسم المسؤول','أ. منى')}${SL('g5','المدرسة',SO())}${B('إنشاء حساب مسؤول','addM()',1)}</div>`:EM('سجّل مدارس الأول','بعدها تقدر تعمل حساب لكل مسؤول.'));
+}
+async function addList(){const L=[...new Set($('g1').value.split('\n').map(x=>x.trim()).filter(Boolean))].filter(n=>!S.schools.some(s=>s.n===n));if(!L.length)return say('اكتب اسم مدرسة جديدة على الأقل');const st=+v('g2'),ty=+v('g3');let k=0;for(const n of L)if(await add('schools',{n,st,ty,stu:0,cls:0,emp:0,sh:0}))k++;say('تمت إضافة '+k+' مدرسة');if(k)pop()}
+async function addM(){const n=v('g4'),sid=v('g5');if(!n)return say('اكتب اسم المسؤول');const u='m'+Math.floor(1000+Math.random()*9000),pin=String(Math.floor(100000+Math.random()*900000));
+ try{const sec=initializeApp(CFG,'s'+Date.now()),a=getAuth(sec),c=await createUserWithEmailAndPassword(a,em(u),pin);await setDoc(doc(db,'users',c.user.uid),{role:'manager',sid,n,un:u});await signOut(a);nc={n,un:u,pin,sc:sch(sid).n};pop();render()}catch(e){say(err(e))}}
+async function login(){const u=v('lu'),p=v('lp');if(!u||!p)return say('اكتب اسم المستخدم والرقم السري');try{await signInWithEmailAndPassword(auth,em(u),p)}catch(e){say(err(e))}}
+async function setup(){const u=v('lu'),p=v('lp');if(!u||p.length<6)return say('اكتب اسم مستخدم ورقم سري 6 أرقام أو أكتر');busy=1;
+ try{const c=await createUserWithEmailAndPassword(auth,em(u),p);await setDoc(doc(db,'users',c.user.uid),{role:'admin',n:'المدير',un:u});await setDoc(doc(db,'meta','setup'),{t:Date.now()});busy=0;await boot(c.user)}catch(e){busy=0;say(err(e))}}
+async function boot(u){try{const s=await getDoc(doc(db,'users',u.uid));if(!s.exists()){say('الحساب ده مش مفعل');await signOut(auth);return}me={id:u.uid,...s.data()};sub();ready=1;anim();render()}catch(e){say(err(e));await signOut(auth)}}
+function sub(){un.forEach(f=>f());un=[];const a=adm(),w=c=>a?collection(db,c):query(collection(db,c),where('s','==',me.sid));
+ const on=(k,ref,one)=>un.push(onSnapshot(ref,sn=>{S[k]=one?(sn.exists()?[{id:sn.id,...sn.data()}]:[]):sn.docs.map(d=>({id:d.id,...d.data()}));rr()},e=>say(err(e))));
+ on('schools',a?collection(db,'schools'):doc(db,'schools',me.sid),!a);on('staff',w('staff'));on('fac',w('facilities'));on('vis',w('visitors'));on('ld',w('leaders'));
+ if(a)on('mgrs',query(collection(db,'users'),where('role','==','manager')))}
+const typing=()=>{const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)};
+function rr(){if(typing()){pend=1;return}render()}
+document.addEventListener('focusout',()=>{if(pend)setTimeout(()=>{if(!typing()){pend=0;render()}},450)});
+Object.assign(window,{tj,te,setHr,setRp,addL,nav,tg,setFS,setFSc,setOp,setQ,dm,edit,out,render,dl,addS,addF,addFa,addV,outV,ex,addList,addM,login,setup});
+render();
+if(!CFG.apiKey.startsWith('PASTE')){app=initializeApp(CFG);auth=getAuth(app);db=getFirestore(app);
+ onAuthStateChanged(auth,async u=>{if(busy)return;if(!u){me=null;un.forEach(f=>f());un=[];try{setupDone=!!(await getDoc(doc(db,'meta','setup'))).exists()}catch(e){setupDone=true}ready=1;render();return}await boot(u)})}
+</script>
+</body>
+</html>
