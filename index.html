@@ -3,63 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14213D">
+<meta name="theme-color" content="#101B36">
+<meta name="color-scheme" content="light dark">
 <title>سجل المدارس</title>
 <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#F3F4FA;--cd:#fff;--ink:#14213D;--mut:#5C6584;--ln:#E1E5F1;--s0:#D99A00;--s1:#00897B;--s2:#6D3FC8;--s3:#D9531E;--s4:#2276B5;--s5:#6B8E23;--s6:#D6336C;--ac:#14213D;--on:#fff;--hero:#14213D;box-sizing:border-box}
-@media(prefers-color-scheme:dark){:root{--bg:#0B1020;--cd:#151D36;--ink:#EDF0FA;--mut:#9AA3C0;--ln:#27325A;--s0:#F5B800;--s1:#2BB5A5;--s2:#9B7BFF;--s3:#FF8A5B;--s4:#5BB5F0;--s5:#A8C960;--s6:#FF7DAB;--ac:#F5B800;--on:#14213D;--hero:#18224A}}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 Tajawal,Tahoma,"Segoe UI",sans-serif}
-.hero{background:var(--hero);color:#fff;border-radius:0 0 34px 34px;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 24px;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 45deg,rgba(255,255,255,.05) 0 25%,transparent 0 50%) 0 0/34px 34px;pointer-events:none}
-.hero::after{content:"";position:absolute;inset-inline:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--s0) 0 33.3%,var(--s1) 0 66.6%,var(--s2) 0)}
-.hi{max-width:520px;margin:0 auto;position:relative}.hrow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-h1{margin:0;font:700 36px/1.1 "Reem Kufi",Tahoma,sans-serif}#sub{margin:4px 0 0;opacity:.8;font-size:13px}
-#hb{display:flex;gap:6px}#hb button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;padding:6px 14px;font-size:13px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.stats:empty{display:none}
-.stats div{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:8px 4px;text-align:center}
-.stats b{display:block;font:700 28px/1.2 "Reem Kufi",sans-serif}.stats span{font-size:12px;opacity:.78}
-.w{max-width:520px;margin:0 auto;padding:18px 16px 120px}
-.c{background:var(--cd);border:1px solid var(--ln);border-radius:22px;padding:14px;margin-bottom:12px;box-shadow:0 14px 24px -20px rgba(20,33,61,.45)}
-.sc{position:relative;overflow:hidden}.sc::before{content:"";position:absolute;inset-inline:0;top:0;height:5px;background:var(--rb)}
-.f{display:flex;flex-direction:column;gap:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
-input,select,textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--ln);border-radius:14px;padding:11px 13px}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--s2);outline-offset:1px}
-label{font-size:12px;color:var(--mut);display:block;margin:0 0 3px}
-button{font:500 14px Tajawal,Tahoma,sans-serif;border-radius:999px;border:1px solid var(--ln);background:var(--cd);color:var(--ink);padding:8px 16px;cursor:pointer;transition:transform .12s}
-button:active{transform:scale(.96)}button.p{background:var(--ac);color:var(--on);border-color:var(--ac)}.blk{width:100%;margin-bottom:12px;padding:12px}.c .blk{margin-bottom:0}
-.ch{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.ch button{padding:5px 13px;font-size:13px}.ch .on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.r{display:flex;gap:12px;align-items:center}.fl{flex:1;min-width:0}.pt{cursor:pointer}.ac{display:flex;gap:6px;margin-top:10px}.ac button{padding:5px 14px;font-size:13px}
-.sb{width:58px;height:58px;border-radius:18px;border:2px solid;display:grid;place-items:center;font:700 32px "Reem Kufi",sans-serif;flex:none;transform:rotate(-4deg)}
-.br{display:flex;gap:10px;justify-content:center;margin:10px 0 18px}.br .sb{width:70px;height:70px;font-size:38px;animation:fl 3s ease-in-out infinite}.br .sb:nth-child(2){animation-delay:.4s}.br .sb:nth-child(3){animation-delay:.8s}
-@keyframes fl{50%{transform:translateY(-8px) rotate(3deg)}}
-.nm{margin:0 0 4px;font-weight:500;font-size:16px}.mu{margin:0;color:var(--mut);font-size:13px}
-.t{display:inline-block;font-size:12px;padding:1px 10px;border-radius:999px;margin-inline-end:6px;border:1px solid transparent}
-.ty0{border-color:var(--mut)}.ty1{background:var(--ink);color:var(--bg)}.ty2{border:1px dashed var(--mut)}
-.k{background:var(--bg);border-radius:14px;padding:6px 0;text-align:center}.k b{display:block;font:700 20px "Reem Kufi",sans-serif}.k span{font-size:12px;color:var(--mut)}
-.av{width:42px;height:42px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:500}
-.dt{background:var(--bg);border-radius:14px;padding:8px 12px;margin-top:10px;font-size:13px}.dt>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.dt span:first-child{color:var(--mut)}
-.em{text-align:center;padding:26px 16px}.em b{font:700 19px "Reem Kufi",sans-serif}.em p{color:var(--mut);margin:6px 0 0}
-.tri{display:flex;gap:8px;justify-content:center;margin-bottom:12px}.tri i{font:700 22px "Reem Kufi",sans-serif;font-style:normal;width:44px;height:44px;border-radius:14px;border:2px solid var(--k);color:var(--k);display:grid;place-items:center;background:color-mix(in srgb,var(--k) 14%,var(--cd))}
-.tri i:nth-child(odd){transform:rotate(-6deg)}.tri i:nth-child(even){transform:rotate(5deg) translateY(-5px)}
-.in{color:var(--s1)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--s1);margin-inline-end:6px;animation:pl 1.6s infinite}
-@keyframes pl{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s1) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
-.dn{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;flex:none}.dn>div{width:78px;height:78px;border-radius:50%;background:var(--cd);display:grid;place-items:center;font:700 26px "Reem Kufi",sans-serif}
-.lg{margin:0 0 6px;display:flex;align-items:center;gap:8px}.lg i{width:12px;height:12px;border-radius:4px}.lg b{margin-inline-start:auto;font-family:"Reem Kufi",sans-serif}
-.bars{display:flex;align-items:flex-end;gap:8px;height:110px;margin-top:10px}.bars div{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
-.bars i{width:100%;border-radius:9px 9px 4px 4px;background:var(--s1);min-height:4px}.bars em{font-style:normal;font-size:11px}.bars span{font-size:11px;color:var(--mut)}
-#app.an>*{animation:rise .45s cubic-bezier(.2,.7,.2,1) both}#app.an>:nth-child(2){animation-delay:.05s}#app.an>:nth-child(3){animation-delay:.1s}#app.an>:nth-child(4){animation-delay:.15s}#app.an>:nth-child(5){animation-delay:.2s}#app.an>:nth-child(n+6){animation-delay:.25s}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}}
-.cf{position:fixed;width:9px;height:14px;border-radius:2px;z-index:20;pointer-events:none}
-.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:2px;background:color-mix(in srgb,var(--cd) 84%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--ln);border-radius:999px;padding:5px;z-index:9;box-shadow:0 12px 30px -8px rgba(20,33,61,.4)}
-.dock button{background:none;border:none;color:var(--mut);padding:10px 11px;display:flex;align-items:center;gap:6px;font-size:13px}.dock button span{display:none}.dock .on{background:var(--ac);color:var(--on)}.dock .on span{display:inline}
-.ts{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-90px);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:13px;transition:transform .2s;z-index:30;max-width:90%}.ts.sh{transform:translate(-50%,0)}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="hero"><div class="hi"><div class="hrow"><div><h1 id="ttl">سجل المدارس</h1><p id="sub"></p></div><div id="hb"></div></div><div class="stats" id="st"></div></div></header><div class="w"><main id="app"></main></div>
-<nav class="dock" id="dock" hidden></nav><div class="ts" id="ts" role="status"></div>
+<nav class="dock" id="dock" hidden></nav>
+<div class="gs" id="gs" hidden onclick="if(event.target===this)gx()"><div class="gp"><input id="gq" placeholder="ابحث في المدارس والعاملين والقيادات والزوار…" oninput="gf()" autocomplete="off"><div id="gr"></div></div></div><div class="ts" id="ts" role="status"></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -101,6 +54,14 @@ const greet=()=>{const h=new Date().getHours();return h>=5&&h<12?'صباح ال�
 function anim(){const a=$('app');a.classList.add('an');clearTimeout(window._a);window._a=setTimeout(()=>a.classList.remove('an'),900)}
 function cu(){document.querySelectorAll('[data-n]').forEach(el=>{const to=+el.dataset.n,k=el.dataset.k,from=prev[k]||0;prev[k]=to;if(from===to)return;const t0=performance.now();const f=t=>{const p=Math.min(1,(t-t0)/600);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)};f(t0)})}
 function pop(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;const cs=['var(--s0)','var(--s1)','var(--s2)'];for(let i=0;i<18;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${lx}px;top:${ly}px;background:${cs[i%3]}`;document.body.appendChild(e);const g=Math.random()*6.28,r=60+Math.random()*90;e.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(g)*r}px,${Math.sin(g)*r+40}px) rotate(${Math.random()*360}deg) scale(.4)`,opacity:0}],{duration:800+Math.random()*400,easing:'cubic-bezier(.2,.8,.3,1)'}).onfinish=()=>e.remove()}}
+function gs(){$('gs').hidden=false;$('gq').value='';gf();$('gq').focus()}
+function gx(){$('gs').hidden=true}
+function gf(){const t=$('gq').value.trim(),r=$('gr');if(!t){r.innerHTML='<p class="mu" style="padding:14px 18px">اكتب اسم مدرسة أو موظف أو مدير أو زائر</p>';return}
+ const M=(a,f)=>a.filter(x=>String(x.n).includes(t)).slice(0,6).map(f);
+ const R=[...M(S.schools,s=>['مدرسة',s.n,ST[s.st]+' · '+TY[s.ty],`gt(0,'${s.id}')`]),...M(S.staff,x=>[x.hr?'بالحصة':'عامل',x.n,x.j+' · '+sch(x.s).n,`gt(1,'${x.id}')`]),...M(S.ld,x=>[x.rl,x.n,sch(x.s).n,`gt(2,'${x.id}')`]),...M(S.vis,x=>['زائر',x.n,x.j+' · '+x.d,`gt(4,'')`])];
+ r.innerHTML=R.length?R.map(([k,n,d,f])=>`<button class="gi" onclick="${f}"><b>${E(n)}</b><span>${E(k)} · ${E(d)}</span></button>`).join(''):'<p class="mu" style="padding:14px 18px">مفيش نتائج</p>'}
+function gt(i,id){gx();tab=i;form=false;ed=null;cf='';op=id;if(i==1){const x=S.staff.find(y=>y.id===id);hrv=x&&x.hr?1:0;q=''}anim();render()}
+addEventListener('keydown',e=>{if(!me)return;if(e.key==='Escape')gx();if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();gs()}});
 function render(){
  const a=$('app'),d=$('dock'),st=$('st');d.hidden=true;st.innerHTML='';
  if(CFG.apiKey.startsWith('PASTE')){a.innerHTML=EM('الإعداد ناقص','افتح ملف SETUP.md واتبع الخطوات، وبعدين الصق بيانات Firebase داخل index.html.');return}
@@ -110,7 +71,7 @@ function render(){
   a.innerHTML=br+(setupDone===false?`<div class="c f"><b class="nm">إنشاء حساب المدير</b><p class="mu">الحساب ده بيتحكم في كل حاجة. اكتب اسم مستخدم بالإنجليزي، ورقم سري 6 أرقام أو أكتر.</p>${F('lu','اسم المستخدم','admin')}<div><label>الرقم السري</label><input id="lp" type="password" inputmode="numeric"></div>${B('إنشاء حساب المدير','setup()',1)}</div>`:`<div class="c f"><b class="nm">أهلاً بيك</b>${F('lu','اسم المستخدم','m1234')}<div><label>الرقم السري</label><input id="lp" type="password" inputmode="numeric" style="text-align:center;font-size:20px;letter-spacing:6px"></div>${B('دخول','login()',1)}</div>`);return}
  d.hidden=false;$('ttl').textContent=TT[tab];
  $('sub').textContent=greet()+' · '+(adm()?'المدير':me.n+' · '+sch(me.sid).n)+' · '+new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
- $('hb').innerHTML=(adm()?'<button onclick="nav(6)">الإعدادات</button>':'')+'<button onclick="out()">خروج</button>';
+ $('hb').innerHTML='<button onclick="gs()" aria-label="بحث"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>'+(adm()?'<button onclick="nav(6)">الإعدادات</button>':'')+'<button onclick="out()">خروج</button>';
  st.innerHTML=[['مدارس',S.schools.length],['عاملين',S.staff.filter(x=>!x.hr).length],['زوار اليوم',S.vis.filter(x=>x.d===day()).length]].map(([l,n],i)=>`<div><b data-n="${n}" data-k="${i}">${n}</b><span>${l}</span></div>`).join('');
  d.innerHTML=NM.map((n,i)=>`<button class="${i===tab?'on':''}" onclick="nav(${i})" aria-label="${n}">${ic(i)}<span>${n}</span></button>`).join('');
  a.innerHTML=[V0,V1,VL,V2,V3,V4,V5][tab]();if(tab===1&&!form)LS();if(tab===1&&form){tj();te()}cu();
@@ -121,7 +82,7 @@ function V0(){
  if(adm())h+=`<div class="ch">${[[-1,'الكل'],...AS()].map(([k,t])=>`<button class="${k===fS?'on':''}" onclick="setFS(${k})">${t}</button>`).join('')}</div>`;
  const L=S.schools.filter(s=>fS<0||s.st===fS);
  if(!L.length)return h+EM('ابدأ بتسجيل المدارس',adm()?'سجّل مدرسة، أو الصق قائمة كاملة من الإعدادات.':'مدرستك لسه متسجلتش. كلم المدير.');
- return h+L.map(s=>`<div class="c sc" style="--rb:var(--s${s.st})"><div class="r">${blk(s)}<div class="fl"><p class="nm">${E(s.n)}</p><div>${bt(s)}</div></div></div><div class="g4">${[['عاملين',s.emp||0],['مسجلين',S.staff.filter(x=>x.s===s.id&&!x.hr).length],['فصول',s.cls||0],['طلاب',s.stu||0]].map(([a,b])=>`<div class="k"><b>${b}</b><span>${a}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('schools','${s.id}')">تعديل</button>${adm()?`<button onclick="dl('schools','${s.id}')">${cf===s.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join('');
+ return h+L.map(s=>`<div class="c bk" style="--rb:var(--s${s.st})"><div class="cv"><span class="wm">${LT[s.st]}</span><p class="nm">${E(s.n)}</p><div>${bt(s)}</div></div><div class="g4">${[['عاملين',s.emp||0],['مسجلين',S.staff.filter(x=>x.s===s.id&&!x.hr).length],['فصول',s.cls||0],['طلاب',s.stu||0]].map(([a,b])=>`<div class="k"><b>${b}</b><span>${a}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('schools','${s.id}')">تعديل</button>${adm()?`<button onclick="dl('schools','${s.id}')">${cf===s.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join('');
 }
 async function addS(){const n=v('a1');if(!n)return say('اكتب اسم المدرسة');const o={n,stu:+v('a4')||0,cls:+v('a5')||0,emp:+v('a6')||0,sh:+v('a7')};if(adm()){o.st=+v('a2');o.ty=+v('a3')}
  if(await(ed?upd('schools',ed.id,o):add('schools',o))){form=false;ed=null;pop()}render()}
@@ -142,7 +103,7 @@ function VL(){
  if(form){if(!S.schools.length)return B('رجوع','tg()')+EM('سجّل مدرسة الأول','لازم يكون فيه مدرسة قبل تسجيل القيادات.');
   return B('رجوع للقائمة','tg()')+`<div class="c f"><b>${ed?'تعديل البيانات':'بيانات مدير / وكيل'}</b>${F('l1','الاسم')}${G(SL('l2','المنصب',A2(LR)),SL('l3','المدرسة',SO()))}${F('l4','الرقم القومي','14 رقم')}${F('l5','رقم الهاتف المحمول','01012345678')}${G(SL('l6','نوع التكليف',A2(LC)),F('l7','تاريخ التكليف','2024/09/01'))}${B('حفظ','addL()',1)}</div>`}
  const L=S.ld.slice().sort((a,b)=>sch(a.s).n.localeCompare(sch(b.s).n,'ar')||(a.rl==='مدير'?-1:1)-(b.rl==='مدير'?-1:1));
- return B('إضافة مدير / وكيل','tg()',1)+(L.length?L.map(x=>`<div class="c sc" style="--rb:var(--s${sch(x.s).st})"><div class="r"><div class="av">${E(String(x.n)[0])}</div><div class="fl"><p class="nm">${E(x.n)}</p><p class="mu">${E(x.rl)} · ${E(sch(x.s).n)}</p></div><span class="t ${x.rl==='مدير'?'ty1':'ty0'}">${E(x.ty)}</span></div><div class="dt">${[['الرقم القومي',x.nid],['الهاتف',x.ph],['نوع التكليف',x.ty],['تاريخ التكليف',x.dt]].map(([a,b])=>`<div><span>${a}</span><span>${E(b||'—')}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('ld','${x.id}')">تعديل</button>${adm()?`<button onclick="dl('ld','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join(''):EM('لسه مفيش مديرين أو وكلاء','سجّل مدير أو وكيل لكل مدرسة.'));
+ return B('إضافة مدير / وكيل','tg()',1)+(L.length?L.map(x=>`<div class="c id" style="--rb:var(--s${sch(x.s).st})"><div class="idh"><span>${E(x.rl)}</span><span>${E(x.ty)}</span></div><div class="idb"><div class="av lg">${E(String(x.n)[0])}</div><div class="fl"><p class="nm">${E(x.n)}</p><p class="mu">${E(sch(x.s).n)}</p></div></div><div class="dt">${[['الرقم القومي',x.nid],['الهاتف',x.ph],['نوع التكليف',x.ty],['تاريخ التكليف',x.dt]].map(([a,b])=>`<div><span>${a}</span><span>${E(b||'—')}</span></div>`).join('')}</div><div class="ac"><button onclick="edit('ld','${x.id}')">تعديل</button>${adm()?`<button onclick="dl('ld','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join(''):EM('لسه مفيش مديرين أو وكلاء','سجّل مدير أو وكيل لكل مدرسة.'));
 }
 async function addL(){const n=v('l1');if(!n)return say('اكتب الاسم');const o={};Object.entries(FM.ld).forEach(([k,f])=>{o[f]=v(k)});
  if(await(ed?upd('ld',ed.id,o):add('ld',o))){form=false;ed=null;pop()}render()}
@@ -156,7 +117,7 @@ function V3(){
  const L=S.vis.filter(x=>x.d===day()).sort((a,b)=>b.i-a.i),n=L.filter(x=>!x.o).length;
  let h=`<div class="g2" style="margin-bottom:12px">${[['زوار اليوم',L.length],['لسه جوه المدرسة',n]].map(([a,b])=>`<div class="k c" style="margin:0"><b>${b}</b><span>${a}</span></div>`).join('')}</div>`+B(form?'إغلاق النموذج':'تسجيل زائر','tg()',!form);
  if(form)h+=S.schools.length?`<div class="c f">${F('e1','اسم الزائر')}${F('e2','وظيفة الزائر','مفتش، ولي أمر، مورد')}${F('e4','الغرض من الزيارة')}${SL('e5','المدرسة',SO())}<p class="mu">وقت الدخول بيتسجل تلقائي.</p>${B('تسجيل دخول','addV()',1)}</div>`:EM('سجّل مدرسة الأول','الزيارة بتتسجل على مدرسة.');
- return h+(L.length?L.map(x=>`<div class="c"><div class="r"><p class="nm fl">${E(x.n)}</p><span class="mu ${x.o?'':'in'}">${x.o?'خرج '+tm(x.o):'<i class="dot"></i>جوه المدرسة'}</span></div><p class="mu">${E(x.j)} · ${E(x.why)}</p><p class="mu">${E(sch(x.s).n)} · دخل ${tm(x.i)}</p><div class="ac">${x.o?'':`<button onclick="outV('${x.id}')">تسجيل خروج</button>`}${adm()?`<button onclick="dl('vis','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join(''):EM('مفيش زوار النهارده','سجّل أول زيارة من الزر فوق.'));
+ return h+(L.length?'<div class="tlw">'+L.map(x=>`<div class="c tl ${x.o?'o':''}"><div class="r"><p class="nm fl">${E(x.n)}</p><span class="mu ${x.o?'':'in'}">${x.o?'خرج '+tm(x.o):'<i class="dot"></i>جوه المدرسة'}</span></div><p class="mu">${E(x.j)} · ${E(x.why)}</p><p class="mu">${E(sch(x.s).n)} · دخل ${tm(x.i)}</p><div class="ac">${x.o?'':`<button onclick="outV('${x.id}')">تسجيل خروج</button>`}${adm()?`<button onclick="dl('vis','${x.id}')">${cf===x.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join('')+'</div>':EM('مفيش زوار النهارده','سجّل أول زيارة من الزر فوق.'));
 }
 async function addV(){const n=v('e1');if(!n)return say('اكتب اسم الزائر');if(await add('vis',{n,j:v('e2')||'—',why:v('e4')||'—',s:v('e5'),i:Date.now(),o:0,d:day()})){form=false;pop()}render()}
 async function outV(id){await upd('vis',id,{o:Date.now()})}
@@ -203,7 +164,7 @@ function sub(){un.forEach(f=>f());un=[];const a=adm(),w=c=>a?collection(db,c):qu
 const typing=()=>{const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)};
 function rr(){if(typing()){pend=1;return}render()}
 document.addEventListener('focusout',()=>{if(pend)setTimeout(()=>{if(!typing()){pend=0;render()}},450)});
-Object.assign(window,{tj,te,setHr,setRp,addL,nav,tg,setFS,setFSc,setOp,setQ,dm,edit,out,render,dl,addS,addF,addFa,addV,outV,ex,addList,addM,login,setup});
+Object.assign(window,{gs,gx,gf,gt,tj,te,setHr,setRp,addL,nav,tg,setFS,setFSc,setOp,setQ,dm,edit,out,render,dl,addS,addF,addFa,addV,outV,ex,addList,addM,login,setup});
 render();
 if(!CFG.apiKey.startsWith('PASTE')){app=initializeApp(CFG);auth=getAuth(app);db=getFirestore(app);
  onAuthStateChanged(auth,async u=>{if(busy)return;if(!u){me=null;un.forEach(f=>f());un=[];try{setupDone=!!(await getDoc(doc(db,'meta','setup'))).exists()}catch(e){setupDone=true}ready=1;render();return}await boot(u)})}
