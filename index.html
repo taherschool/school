@@ -8,7 +8,19 @@
 <title>سجل المدارس</title>
 <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<style>:root{--s7:#0E7490;--s8:#A21CAF}@media(prefers-color-scheme:dark){:root{--s7:#5AD1E6;--s8:#E879F9}}@media(max-width:480px){.dock button{padding:10px 8px}}</style>
+<style>:root{--s7:#0E7490;--s8:#A21CAF}@media(prefers-color-scheme:dark){:root{--s7:#5AD1E6;--s8:#E879F9}}@media(max-width:480px){.dock button{padding:10px 8px}}
+.zf{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.zf button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 8px;border-radius:16px;border:1.5px solid var(--ln);background:var(--cd);color:inherit;font:500 12px/1.3 Tajawal,sans-serif;text-align:center;transition:.2s}
+.zf button i{font:700 16px 'Reem Kufi',sans-serif;font-style:normal;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;color:var(--k);background:color-mix(in srgb,var(--k) 16%,var(--cd))}
+.zf button b{font:700 15px 'Reem Kufi',sans-serif}
+.zf button.on{border-color:var(--k);background:color-mix(in srgb,var(--k) 12%,var(--cd));transform:translateY(-2px)}
+.zf .zal{grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;font-size:14px}
+.zf .zal.on{border-color:var(--s1)}
+.zp{height:10px;border-radius:9px;background:var(--ln);overflow:hidden;margin:8px 0}
+.zp i{display:block;height:100%;background:linear-gradient(to left,var(--s1),var(--s0));border-radius:9px;transition:width .6s}
+.zu{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--ln)}
+.zu>i{width:6px;height:34px;border-radius:4px;flex:none}
+</style>
 </head>
 <body>
 <header class="hero"><div class="hi"><div class="hrow"><div><h1 id="ttl">سجل المدارس</h1><p id="sub"></p></div><div id="hb"></div></div><div class="stats" id="st"></div></div></header><div class="w"><main id="app"></main></div>
@@ -37,11 +49,14 @@ const AR=a=>a.map((x,i)=>[i,x]),A2=a=>a.map(x=>[x,x]),SO=()=>S.schools.map(s=>[s
 const B=(t,fn,p)=>`<button class="${p?'p ':''}blk" onclick="${fn}">${t}</button>`,EM=(t,d)=>`<div class="c em"><div class="tri"><i style="--k:var(--s0)">ا</i><i style="--k:var(--s1)">ع</i><i style="--k:var(--s2)">ث</i></div><b>${t}</b><p>${d}</p></div>`;
 const bt=s=>`<span class="t" style="background:color-mix(in srgb,var(--s${s.st}) 22%,var(--cd))">${ST[s.st]}</span><span class="t ty${s.ty}">${TY[s.ty]}</span><span class="t" style="background:var(--bg)">${SH[s.sh||0]}</span>`;
 const blk=s=>`<div class="sb" style="border-color:var(--s${s.st});background:color-mix(in srgb,var(--s${s.st}) 16%,var(--cd));color:var(--s${s.st})">${LT[s.st]}</div>`;
+const SN=['ابتدائي','إعدادي','ثانوي عام','أساسي (رياض+ابت+إعد)','ثانوي فني','مجتمعي','رياض أطفال','ابتدائي + رياض','أساسي (ابت+إعد)'];
+const chk=o=>o.nid&&!/^\d{14}$/.test(o.nid)?'الرقم القومي لازم يكون 14 رقم':o.ph&&!/^01\d{9}$/.test(o.ph)?'التليفون لازم يكون 11 رقم ويبدأ بـ 01':'';
+function UV(){const t=day(),L=PR(),vs=new Set(L.filter(x=>x.k==='s'&&x.dt<=t).map(x=>x.sc));return S.schools.map(s=>{const a=S.plans.filter(x=>x.k==='s'&&x.sc===s.id&&x.dt<=t&&supOf(x.p)).map(x=>x.dt).sort(),l=a[a.length-1]||'';return{s,l,n:l?Math.round((new Date(t)-new Date(l))/864e5):9999,nx:L.some(x=>x.k==='s'&&x.sc===s.id&&x.dt>t),ok:vs.has(s.id)}}).sort((a,b)=>b.n-a.n)}
 function say(m){const t=$('ts');t.textContent=m;t.classList.add('sh');clearTimeout(window._t);window._t=setTimeout(()=>t.classList.remove('sh'),3200)}
 function err(e){const c=e.code||'';if(/credential|password|user-not-found/.test(c)&&!/weak/.test(c))return'اسم المستخدم أو الرقم السري غير صحيح';if(/weak/.test(c))return'الرقم السري لازم يكون 6 أرقام على الأقل';if(/permission/.test(c))return'مفيش صلاحية للعملية دي';if(/already/.test(c))return'الاسم مستخدم، جرب تاني';if(/network/.test(c))return'مفيش اتصال بالإنترنت';return'حصل خطأ: '+c}
-async function add(c,o){try{await addDoc(collection(db,CN[c]),o);return 1}catch(e){say(err(e));return 0}}
-async function upd(c,id,o){try{await updateDoc(doc(db,CN[c],id),o);return 1}catch(e){say(err(e));return 0}}
-function dl(c,id){if(cf!==id){cf=id;render();return}cf='';deleteDoc(doc(db,CN[c],id)).catch(e=>say(err(e)))}
+async function add(c,o){const m=chk(o);if(m){say(m);return 0}try{await addDoc(collection(db,CN[c]),o);return 1}catch(e){say(err(e));return 0}}
+async function upd(c,id,o){const m=chk(o);if(m){say(m);return 0}try{await updateDoc(doc(db,CN[c],id),o);return 1}catch(e){say(err(e));return 0}}
+function dl(c,id){const n=c==='schools'?S.staff.filter(x=>x.s===id).length+S.ld.filter(x=>x.s===id).length:c==='dirs'?S.sups.filter(x=>x.d===id).length:0;if(n)return say('لا يمكن الحذف: مرتبط به '+n+' سجل. انقلهم أو احذفهم الأول');if(cf!==id){cf=id;render();return}cf='';deleteDoc(doc(db,CN[c],id)).catch(e=>say(err(e)))}
 function nav(i){if(!vis(i))return;tab=i;form=false;ed=null;op='';cf='';anim();render()}
 function tg(){form=!form;ed=null;render()}
 function setFS(i){fS=i;render()}function setFSc(x){fSc=x;render()}function setOp(x){op=x;cf='';render()}function setQ(x){q=x;LS()}function dm(){nc=null;render()}
@@ -118,7 +133,7 @@ function render(){
 function V0(){
  let h=adm()?B(form&&!ed?'إغلاق النموذج':'تسجيل مدرسة','tg()',!form):'';
  if(form)h+=`<div class="c f"><b>${ed?'تعديل بيانات المدرسة':'مدرسة جديدة'}</b>${F('a1','اسم المدرسة')}${F('a8','عنوان المدرسة')}${adm()?G(SL('a2','المرحلة',AS()),SL('a3','النوع',AR(TY))):''}${SL('a7','الفترة',AR(SH))}${G(F('a4','عدد الطلاب','500'),F('a5','عدد الفصول','20'))}${F('a6','عدد العاملين','40')}${B('حفظ','addS()',1)}${ed?B('إلغاء','tg()'):''}</div>`;
- if(adm())h+=`<div class="ch">${[[-1,'الكل'],...AS()].map(([k,t])=>`<button class="${k===fS?'on':''}" onclick="setFS(${k})">${t}</button>`).join('')}</div>`;
+ if(adm())h+=`<div class="zf"><button class="zal${fS<0?' on':''}" onclick="setFS(-1)"><span>كل المدارس</span><b>${S.schools.length}</b></button>${ORD.map(i=>`<button class="${i===fS?'on':''}" style="--k:var(--s${i})" onclick="setFS(${i})"><i>${LT[i]}</i><span>${SN[i]}</span><b>${S.schools.filter(s=>s.st===i).length}</b></button>`).join('')}</div>`;
  const L=S.schools.filter(s=>fS<0||s.st===fS);
  if(!L.length)return h+EM('ابدأ بتسجيل المدارس',adm()?'سجّل مدرسة، أو الصق قائمة كاملة من الإعدادات.':'مدرستك لسه متسجلتش. كلم المدير.');
  return h+L.map(s=>`<div class="c bk" style="--rb:var(--s${s.st})"><div class="cv"><span class="wm">${LT[s.st]}</span><p class="nm">${E(s.n)}</p><div>${bt(s)}</div>${s.ad?`<p class="mu" style="color:rgba(255,255,255,.88);margin-top:6px">${E(s.ad)}</p>`:''}</div><div class="g4">${[['عاملين',s.emp||0],['مسجلين',S.staff.filter(x=>x.s===s.id&&!x.hr).length],['فصول',s.cls||0],['طلاب',s.stu||0]].map(([a,b])=>`<div class="k"><b>${b}</b><span>${a}</span></div>`).join('')}</div><div class="ac">${ce()?`<button onclick="edit('schools','${s.id}')">تعديل</button>`:LK}${adm()?`<button onclick="dl('schools','${s.id}')">${cf===s.id?'تأكيد الحذف؟':'حذف'}</button>`:''}</div></div>`).join('');
@@ -172,8 +187,10 @@ function setRv(i){rv=i;render()}function setJm(i){jm=i;jc=-1;render()}function s
 function prg(){const t=new Date(),f=x=>x.toLocaleDateString('en-CA');if(rp==0)return[f(t),f(t)];if(rp==1){const a=new Date(t);a.setDate(t.getDate()-((t.getDay()+1)%7));const e=new Date(a);e.setDate(a.getDate()+6);return[f(a),f(e)]}return[f(new Date(t.getFullYear(),t.getMonth(),1)),f(new Date(t.getFullYear(),t.getMonth()+1,0))]}
 const PR=()=>{const[a,b]=prg();return S.plans.filter(x=>x.dt>=a&&x.dt<=b&&supOf(x.p))};
 function VRg(){
- const[f0,f1]=prg(),L=PR(),P=['اليوم','هذا الأسبوع','هذا الشهر'][rp],top=CH(['يومي','أسبوعي','شهري'],rp,'setRp')+CH(['زيارات المدارس','زيارات الموجهين','بيانات الموجهين'],sm,'setSm')+`<p class="mu" style="margin:0 0 10px">${P}: ${f0}${f0===f1?'':' ← '+f1}</p>`;
+ const[f0,f1]=prg(),L=PR(),P=['اليوم','هذا الأسبوع','هذا الشهر'][rp],top=CH(['يومي','أسبوعي','شهري'],rp,'setRp')+CH(['زيارات المدارس','زيارات الموجهين','مدارس لم تُزَر','بيانات الموجهين'],sm,'setSm')+`<p class="mu" style="margin:0 0 10px">${P}: ${f0}${f0===f1?'':' ← '+f1}</p>`;
  const byDate=(a,b)=>a.dt.localeCompare(b.dt),row=(c,w,h,i,col)=>`<button style="${RB}background:linear-gradient(to left,color-mix(in srgb,${col} 24%,transparent) ${w}%,var(--bg) ${w}%);${i===sx?'border-color:'+col+';':''}" onclick="setSx(${i})">${h}</button>`;
+ if(sm==2){const R=UV(),U=R.filter(r=>!r.ok),T=R.length,p=T?Math.round((T-U.length)/T*100):0;
+ return top+`<div class="c"><p class="nm">تغطية زيارات الموجهين · ${p}%</p><div class="zp"><i style="width:${p}%"></i></div><p class="mu">زيارة ${T-U.length} من ${T} مدرسة · لم تُزَر ${U.length}</p><p class="mu">المخطط لأيام قادمة لا يُحسب زيارة إلا بعد حلول يومه.</p></div><div class="c"><p class="nm">مدارس لم يزرها أي موجه (${P})</p>${U.length?U.map(r=>`<div class="zu"><i style="background:var(--s${r.s.st})"></i><div class="fl"><p class="nm" style="font-size:14px;margin:0">${E(r.s.n)}</p><p class="mu">${ST[r.s.st]} · ${r.l?'آخر زيارة '+r.l+' (قبل '+r.n+' يوم)':'لم تُزَر من قبل'}${r.nx?' · مخطط لها لاحقًا':''}</p></div></div>`).join(''):'<p class="mu">كل المدارس تمت زيارتها 🎉</p>'}<div style="margin-top:10px"><button class="p blk" onclick="ex('vu')">تصدير المدارس غير المزارة</button></div></div>`}
  if(sm==0){const R=S.schools.map(s=>[s,L.filter(x=>x.k==='s'&&x.sc===s.id).sort(byDate)]),M=Math.max(1,...R.map(r=>r[1].length)),sel=R[sx];
   return top+`<div class="c"><p class="nm">زيارات المدارس · الإجمالي ${R.reduce((t,r)=>t+r[1].length,0)}</p>${R.map(([s,a],i)=>row(s,a.length/M*100,`<span>${E(s.n)}</span><b style="font:700 18px 'Reem Kufi',sans-serif">${a.length}</b>`,i,'var(--s'+s.st+')')).join('')||'<p class="mu">لا توجد مدارس</p>'}<div class="g2" style="margin-top:8px"><button onclick="ex('vc')">تصدير الملخص</button><button onclick="ex('vs')">تصدير التفاصيل</button></div></div>`
   +`<div class="c"><p class="nm">${sel?E(sel[0].n)+' · من زارها':'اضغط على مدرسة لعرض من زارها'}</p>${sel?(sel[1].length?sel[1].map(x=>{const s=supOf(x.p);return `<div style="padding:8px 0;border-top:1px solid var(--ln)"><p class="nm" style="font-size:14px;margin:0">${E(s.n)}</p><p class="mu">${wd(x.dt)} ${x.dt} · ${E(dirName(s.d))}</p></div>`}).join(''):'<p class="mu">مفيش زيارات في الفترة دي.</p>'):''}</div>`}
@@ -215,11 +232,12 @@ function ex(k){
   jn:[['التصنيف','الاسم','المدرسة','الرقم القومي','الهاتف','نوع العمل','مادة التدريس'],JCats().flatMap(c=>STs().filter(x=>JKy(x)===c).map(x=>[c,x.n,sch(x.s).n,x.nid,x.ph,x.et||'أصلي',x.sj||'']))],
   jx:[['التصنيف','الاسم','المدرسة','الرقم القومي','الهاتف','نوع العمل','مادة التدريس'],STs().filter(x=>JKy(x)===JCats()[jc]).map(x=>[JCats()[jc],x.n,sch(x.s).n,x.nid,x.ph,x.et||'أصلي',x.sj||''])],
   vs:[['المدرسة','التاريخ','اليوم','الموجه','التوجيه'],PR().filter(x=>x.k==='s').sort((a,b)=>a.dt.localeCompare(b.dt)).map(x=>[sch(x.sc).n,x.dt,wd(x.dt),supOf(x.p).n,dirName(supOf(x.p).d)])],
+  vu:[['المدرسة','المرحلة','النوع','آخر زيارة','أيام منذ آخر زيارة'],UV().filter(r=>!r.ok).map(r=>[r.s.n,ST[r.s.st],TY[r.s.ty],r.l||'لم تُزَر',r.l?r.n:''])],
   vc:[['المدرسة','عدد الزيارات','الموجهون'],S.schools.map(s=>{const a=PR().filter(x=>x.k==='s'&&x.sc===s.id);return[s.n,a.length,[...new Set(a.map(x=>supOf(x.p).n))].join(' - ')]})],
   vp:[['الموجه','التوجيه','التاريخ','اليوم','المكان','النوع'],PR().sort((a,b)=>a.dt.localeCompare(b.dt)).map(x=>{const s=supOf(x.p);return[s.n,dirName(s.d),x.dt,wd(x.dt),plc(x),x.k==='s'?'مدرسة':(x.ot==='إجازة'?'إجازة':'مكان آخر')]})],
   vd:[['التوجيه','الاسم','الرقم القومي','التليفون','الوظيفة','نوع التكليف'],SUPS().map(x=>[dirName(x.d),x.n,x.nid,x.ph,x.j,x.ty])]}[k];
  if(k==='jx'&&jc<0)return say('اختر تصنيف الأول');
- const csv='\ufeff'+[T[0],...T[1]].map(r=>r.map(c=>'"'+String(c??'').replace(/^[=+\-@]/,"'$&").replace(/"/g,'""')+'"').join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=({vis:['visitors-daily','visitors-weekly','visitors-monthly'][rp],jc:'count-by-'+(jm?'law':'job'),jn:'names-by-'+(jm?'law':'job'),jx:'names-selected',vs:'school-visits-'+['daily','weekly','monthly'][rp],vc:'school-visits-summary-'+['daily','weekly','monthly'][rp],vp:'supervisor-visits-'+['daily','weekly','monthly'][rp],vd:'supervisors-data'}[k]||k)+'-'+day()+'.csv';a.click()}
+ const csv='\ufeff'+[T[0],...T[1]].map(r=>r.map(c=>'"'+String(c??'').replace(/^[=+\-@]/,"'$&").replace(/"/g,'""')+'"').join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=({vis:['visitors-daily','visitors-weekly','visitors-monthly'][rp],jc:'count-by-'+(jm?'law':'job'),jn:'names-by-'+(jm?'law':'job'),jx:'names-selected',vs:'school-visits-'+['daily','weekly','monthly'][rp],vu:'unvisited-schools-'+['daily','weekly','monthly'][rp],vc:'school-visits-summary-'+['daily','weekly','monthly'][rp],vp:'supervisor-visits-'+['daily','weekly','monthly'][rp],vd:'supervisors-data'}[k]||k)+'-'+day()+'.csv';a.click()}
 function V5(){
  if(!adm())return '';
  return (nc?`<div class="c f" style="border-color:var(--s1)"><b>بيانات دخول ${E(nc.n)}</b><p class="mu">${E(nc.sc)}</p><p class="nm" dir="ltr" style="letter-spacing:2px">${E(nc.un)} / ${E(nc.pin)}</p><p class="mu">اكتبها دلوقتي، الرقم السري مش هيظهر تاني.</p><button onclick="dm()">تم</button></div>`:'')+`<p class="nm">قائمة أسماء المدارس</p><div class="c f"><div><label>اكتب أو الصق اسم كل مدرسة في سطر</label><textarea id="g1" rows="5"></textarea></div>${G(SL('g2','المرحلة',AS()),SL('g3','النوع',AR(TY)))}${B('إضافة المدارس للقائمة','addList()',1)}<p class="mu">المدارس المسجلة: ${S.schools.length}</p></div><p class="nm">مسؤولو المدارس</p>`+S.mgrs.map(m=>{const o=m.eu&&m.eu.toMillis&&m.eu.toMillis()>Date.now();return `<div class="c"><div class="r"><div class="fl"><p class="nm">${E(m.n)}</p><p class="mu">${m.role==='dman'?'توجيه: '+E(dirName(m.did)):E(sch(m.sid).n)} · <span dir="ltr">${E(m.un)}</span></p></div><button onclick="dl('mgrs','${m.id}')">${cf===m.id?'تأكيد الإلغاء؟':'إلغاء الصلاحية'}</button></div><p class="mu" style="margin-top:8px">${o?'🔓 التعديل مفتوح لحد '+tm(m.eu.toMillis()):'🔒 التعديل والحذف مقفولين'}</p><div class="ac">${o?`<button onclick="lk('${m.id}',0)">قفل الآن</button>`:''}${[[30,'30 دقيقة'],[60,'ساعة'],[180,'3 ساعات']].map(([mn,t])=>`<button onclick="lk('${m.id}',${mn})">فتح ${t}</button>`).join('')}</div></div>`}).join('')+(S.schools.length?`<div class="c f">${F('g4','اسم المسؤول','أ. منى')}${SL('g5','المدرسة',SO())}${B('إنشاء حساب مسؤول','addM()',1)}</div>`:EM('سجّل مدارس الأول','بعدها تقدر تعمل حساب لكل مسؤول.'))+(S.dirs.length?`<div class="c f"><b>مسؤول توجيه</b>${F('h4','اسم المسؤول','أ. محمود')}${SL('h5','التوجيه',S.dirs.map(d=>[d.id,d.n]))}${B('إنشاء حساب مسؤول توجيه','addDM()',1)}</div>`:'');
@@ -245,7 +263,7 @@ document.addEventListener('focusout',()=>{if(pend)setTimeout(()=>{if(!typing()){
 Object.assign(window,{addDM,addDir,addPlace,addSv,setPl,setSvm,setSvs,setDf,setSm,setSx,setPm,lk,setRv,setJm,setJh,setJc,gs,gx,gf,gt,tj,te,setHr,setRp,addL,nav,tg,setFS,setFSc,setOp,setQ,dm,edit,out,render,dl,addS,addF,addFa,addV,outV,ex,addList,addM,login,setup});
 render();
 if(!CFG.apiKey.startsWith('PASTE')){app=initializeApp(CFG);auth=getAuth(app);db=getFirestore(app);
- onAuthStateChanged(auth,async u=>{if(busy)return;if(!u){me=null;un.forEach(f=>f());un=[];try{setupDone=!!(await getDoc(doc(db,'meta','setup'))).exists()}catch(e){setupDone=true}ready=1;render();return}await boot(u)})}
+ onAuthStateChanged(auth,async u=>{if(busy)return;if(!u){me=null;Object.keys(S).forEach(k=>S[k]=[]);un.forEach(f=>f());un=[];try{setupDone=!!(await getDoc(doc(db,'meta','setup'))).exists()}catch(e){setupDone=true}ready=1;render();return}await boot(u)})}
 </script>
 </body>
 </html>
